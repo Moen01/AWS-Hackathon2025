@@ -1,0 +1,34 @@
+{
+  "name": "aws-hackathon2025",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/local.js",
+    "dev": "ts-node local.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Moen01/AWS-Hackathon2025.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Moen01/AWS-Hackathon2025/issues"
+  },
+  "homepage": "https://github.com/Moen01/AWS-Hackathon2025#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "serverless-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.159",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
