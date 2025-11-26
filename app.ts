@@ -6,6 +6,10 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/:token", (req: Request, res: Response) => {
+  res.json({ email: "Hello from Express on AWS Lambda!" });
+});
+
 app.get("/", (req: Request, res: Response) => {
   const htmlPath = path.join(__dirname, "views", "index.html");
   const html = fs.readFileSync(htmlPath, "utf-8");
