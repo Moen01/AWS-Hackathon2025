@@ -1,0 +1,113 @@
+import {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+} from "@aws-sdk/client-bedrock-runtime";
+
+const client = new BedrockRuntimeClient({
+  region: process.env.AWS_REGION || "us-west-2",
+});
+
+export interface BankTransaction {
+  id: number;
+  transactionCode: string;
+  description: string;
+  bookingDate: string;
+  amount: number;
+  [key: string]: any;
+}
+
+export interface TransactionAnalysisResult {
+  subscriptions: number[];
+  physical: number[];
+}
+
+export async function analyzeCardTransactions(
+  transactions: BankTransaction[]
+): Promise<TransactionAnalysisResult> {
+  // Filter relevant fields to reduce token usage
+  const simplifiedTransactions = transactions.map((t) => ({
+    id: t.id,
+    description: t.description,
+    amount: t.amount,
+    transactionCode: t.transactionCode,
+    bookingDate: t.bookingDate,
+  }));
+
+  const prompt = `
+You are a financial assistant. Analyze the following bank transactions.
+1. Identify which transactions are card payments (look for 'card' in transactionCode or typical card descriptions).
+2. Categorize these card transactions into two groups:
+   - "subscriptions": Recurring payments, online services, software (e.g., GitHub, Netflix, Adobe, ZTL Payment).
+   - "physical": In-store purchases, restaurants, travel, physical goods bought in person.
+
+Return ONLY a valid JSON object with this structure:
+{
+  "subscriptions": [list of transaction IDs],
+  "physical": [list of transaction IDs]
+}
+
+Transactions:
+${JSON.stringify(simplifiedTransactions, null, 2)}
+`;
+
+  const input = {
+    modelId: "anthropic.claude-3-sonnet-20240229-v1:0", // or "anthropic.claude-3-haiku-20240307-v1:0"
+    contentType: "application/json",
+    accept: "application/json",
+    body: JSON.stringify({
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: 2000,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    }),
+  };
+
+  try {
+    const command = new InvokeModelCommand(input);
+    const response = await client.send(command);
+
+    const responseBody = new TextDecoder().decode(response.body);
+    const result = JSON.parse(responseBody);
+
+    // Extract the JSON from the content text (Claude returns it in content[0].text)
+    const contentText = result.content[0].text;
+
+    // Find the JSON block in case there's extra text
+    const jsonMatch = contentText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    } else {
+      throw new Error("No JSON found in response");
+    }
+  } catch (error) {
+    console.error("Error invoking Bedrock:", error);
+    throw error;
+  }
+}
+
+export interface EnrichedTransactionAnalysisResult {
+  subscriptions: BankTransaction[];
+  physical: BankTransaction[];
+}
+
+export function mapAnalysisToTransactions(
+  analysis: TransactionAnalysisResult,
+  transactions: BankTransaction[]
+): EnrichedTransactionAnalysisResult {
+  const findTransactions = (ids: number[]) =>
+    transactions.filter((t) => ids.includes(t.id));
+
+  return {
+    subscriptions: findTransactions(analysis.subscriptions),
+    physical: findTransactions(analysis.physical),
+  };
+}
