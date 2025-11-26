@@ -33,18 +33,6 @@ export interface TransactionAnalysisResult {
 export async function analyzeCardTransactions(
   transactions: BankTransaction[]
 ): Promise<TransactionAnalysisResult> {
-  // List available models (just for demonstration/debug)
-  try {
-    const listCommand = new ListFoundationModelsCommand({});
-    const listResponse = await bedrockClient.send(listCommand);
-    console.log(
-      "Available Bedrock Models (first 5):",
-      listResponse.modelSummaries?.slice(0, 5).map((m) => m.modelId)
-    );
-  } catch (err) {
-    console.warn("Failed to list models:", err);
-  }
-
   // Filter relevant fields to reduce token usage
   const simplifiedTransactions = transactions.map((t) => ({
     id: t.id,
@@ -72,7 +60,7 @@ ${JSON.stringify(simplifiedTransactions, null, 2)}
 `;
 
   const input = {
-    modelId: "anthropic.claude-3-haiku-20240307-v1:0",
+    modelId: "global.anthropic.claude-sonnet-4-20250514-v1:0",
     contentType: "application/json",
     accept: "application/json",
     body: JSON.stringify({
@@ -169,7 +157,7 @@ Språk: Norsk.
 `;
 
   const input = {
-    modelId: "anthropic.claude-3-haiku-20240307-v1:0",
+    modelId: "global.anthropic.claude-sonnet-4-20250514-v1:0",
     contentType: "application/json",
     accept: "application/json",
     body: JSON.stringify({

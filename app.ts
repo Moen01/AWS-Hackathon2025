@@ -31,17 +31,17 @@ app.get("/check", async (req: Request, res: Response) => {
   const result = await analyzeCardTransactions(subset);
   console.log("Analysis Result (IDs):", JSON.stringify(result, null, 2));
 
-  // const enrichedResult = mapAnalysisToTransactions(result, subset);
+  const enrichedResult = mapAnalysisToTransactions(result, subset);
 
-  // const email = await generateMissingReceiptsEmail(enrichedResult);
-  // console.log(email);
+  const email = await generateMissingReceiptsEmail(enrichedResult);
+  console.log(email);
   const htmlPath = path.join(__dirname, "views", "email.html");
   let html = fs.readFileSync(htmlPath, "utf-8");
 
   // Replace placeholders with dynamic data
   html = html.replace("{{DATE}}", new Date().toLocaleDateString());
-  // html = html.replace("{{BODY}}", email.body);
-  // html = html.replace("{{SUBJECT}}", email.subject);
+  html = html.replace("{{BODY}}", email.body);
+  html = html.replace("{{SUBJECT}}", email.subject);
   html = html.replace("{{TOKEN}}", token);
 
   res.send(html);
