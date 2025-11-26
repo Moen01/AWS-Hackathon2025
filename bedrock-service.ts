@@ -1,10 +1,18 @@
 import {
+  BedrockClient,
+  ListFoundationModelsCommand,
+} from "@aws-sdk/client-bedrock";
+import {
   BedrockRuntimeClient,
   InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 import "dotenv/config";
 
-const client = new BedrockRuntimeClient({
+const bedrockClient = new BedrockClient({
+  region: process.env.AWS_REGION || "us-west-2",
+});
+
+const runtimeClient = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || "us-west-2",
 });
 
@@ -25,6 +33,18 @@ export interface TransactionAnalysisResult {
 export async function analyzeCardTransactions(
   transactions: BankTransaction[]
 ): Promise<TransactionAnalysisResult> {
+  // List available models (just for demonstration/debug)
+  try {
+    const listCommand = new ListFoundationModelsCommand({});
+    const listResponse = await bedrockClient.send(listCommand);
+    console.log(
+      "Available Bedrock Models (first 5):",
+      listResponse.modelSummaries?.slice(0, 5).map((m) => m.modelId)
+    );
+  } catch (err) {
+    console.warn("Failed to list models:", err);
+  }
+
   // Filter relevant fields to reduce token usage
   const simplifiedTransactions = transactions.map((t) => ({
     id: t.id,
@@ -52,18 +72,18 @@ ${JSON.stringify(simplifiedTransactions, null, 2)}
 `;
 
   const input = {
-    modelId: "amazon.nova-premier-v1:0",
+    modelId: "anthropic.claude-3-haiku-20240307-v1:0",
     contentType: "application/json",
     accept: "application/json",
     body: JSON.stringify({
-      inferenceConfig: {
-        max_new_tokens: 2000,
-      },
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: 2000,
       messages: [
         {
           role: "user",
           content: [
             {
+              type: "text",
               text: prompt,
             },
           ],
@@ -74,13 +94,13 @@ ${JSON.stringify(simplifiedTransactions, null, 2)}
 
   try {
     const command = new InvokeModelCommand(input);
-    const response = await client.send(command);
+    const response = await runtimeClient.send(command);
 
     const responseBody = new TextDecoder().decode(response.body);
     const result = JSON.parse(responseBody);
 
-    // Extract the JSON from the content text (Amazon Nova returns it in output.message.content[0].text)
-    const contentText = result.output.message.content[0].text;
+    // Extract the JSON from the content text (Claude returns it in content[0].text)
+    const contentText = result.content[0].text;
 
     // Find the JSON block in case there's extra text
     const jsonMatch = contentText.match(/\{[\s\S]*\}/);
@@ -149,18 +169,18 @@ Språk: Norsk.
 `;
 
   const input = {
-    modelId: "amazon.nova-premier-v1:0",
+    modelId: "anthropic.claude-3-haiku-20240307-v1:0",
     contentType: "application/json",
     accept: "application/json",
     body: JSON.stringify({
-      inferenceConfig: {
-        max_new_tokens: 2000,
-      },
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: 2000,
       messages: [
         {
           role: "user",
           content: [
             {
+              type: "text",
               text: prompt,
             },
           ],
@@ -171,11 +191,11 @@ Språk: Norsk.
 
   try {
     const command = new InvokeModelCommand(input);
-    const response = await client.send(command);
+    const response = await runtimeClient.send(command);
 
     const responseBody = new TextDecoder().decode(response.body);
     const result = JSON.parse(responseBody);
-    const contentText = result.output.message.content[0].text;
+    const contentText = result.content[0].text;
 
     const jsonMatch = contentText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {

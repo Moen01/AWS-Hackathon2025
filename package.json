@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Moen01/AWS-Hackathon2025#readme",
   "dependencies": {
+    "@aws-sdk/client-bedrock": "^3.940.0",
     "@aws-sdk/client-bedrock-runtime": "^3.0.0",
     "@aws-sdk/client-ses": "^3.940.0",
     "dotenv": "^17.2.3",
