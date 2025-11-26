@@ -63,6 +63,35 @@ query getBankTransactions($options: BankTransactionOptions!) {
 }
 `;
 
+const BANK_ACCOUNT_QUERY = `
+fragment bankAccountFragment on BankAccount {
+  id
+  currencyCode
+  name
+  bank
+  bban
+  iban
+  bic
+  isInvoiceAccount
+  isIntegrated
+  countryCode
+  balance {
+    available
+    booked
+  }
+  account {
+    id
+    name
+  }
+}
+
+query getBankAccount($id: Int!) {
+  bankAccount(id: $id) {
+    ...bankAccountFragment
+  }
+}
+`;
+
 interface GraphQLResponse<T> {
   data: T;
   errors?: any[];
@@ -148,16 +177,60 @@ interface BankTransactionsResponse {
   }[];
 }
 
+interface BankAccountResponse {
+  bankAccount: {
+    id: number;
+    currencyCode: string;
+    name: string;
+    bank: string;
+    bban: string;
+    iban: string;
+    bic: string;
+    isInvoiceAccount: boolean;
+    isIntegrated: boolean;
+    countryCode: string;
+    balance: {
+      available: number;
+      booked: number;
+    };
+    account: {
+      id: number;
+      name: string;
+    };
+    integration: {
+      consent: {
+        id: number;
+        bic: string;
+        status: string;
+        reason: string;
+        createdAt: string;
+        expireAt: string;
+      };
+      scaUrl: string;
+      syncedAt: string;
+      failedSyncAttempts: number;
+      failedSyncError: string;
+    };
+  };
+}
+
 export async function fetchCatacloudData(
   token: string,
   from: string,
   to: string,
-  account: number,
   bankAccountId: number
 ) {
+  const bankAccountData = await graphqlRequest<BankAccountResponse>(
+    BANK_ACCOUNT_QUERY,
+    { id: bankAccountId },
+    token
+  );
+
+  const accountId = bankAccountData.bankAccount.account.id;
+
   const ledgerVariables = {
     options: {
-      account,
+      account: accountId,
       corrections: false,
       from,
       to,
@@ -184,5 +257,6 @@ export async function fetchCatacloudData(
   return {
     ledgerData: ledgerData.ledgerReport,
     bankTransactions: bankTransactions.bankTransactions,
+    bankAccount: bankAccountData.bankAccount,
   };
 }
