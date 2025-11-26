@@ -2,6 +2,7 @@ import {
   BedrockRuntimeClient,
   InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
+import "dotenv/config";
 
 const client = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || "us-west-2",
@@ -51,18 +52,18 @@ ${JSON.stringify(simplifiedTransactions, null, 2)}
 `;
 
   const input = {
-    modelId: "anthropic.claude-3-sonnet-20240229-v1:0", // or "anthropic.claude-3-haiku-20240307-v1:0"
+    modelId: "amazon.nova-premier-v1:0",
     contentType: "application/json",
     accept: "application/json",
     body: JSON.stringify({
-      anthropic_version: "bedrock-2023-05-31",
-      max_tokens: 2000,
+      inferenceConfig: {
+        max_new_tokens: 2000,
+      },
       messages: [
         {
           role: "user",
           content: [
             {
-              type: "text",
               text: prompt,
             },
           ],
@@ -78,8 +79,8 @@ ${JSON.stringify(simplifiedTransactions, null, 2)}
     const responseBody = new TextDecoder().decode(response.body);
     const result = JSON.parse(responseBody);
 
-    // Extract the JSON from the content text (Claude returns it in content[0].text)
-    const contentText = result.content[0].text;
+    // Extract the JSON from the content text (Amazon Nova returns it in output.message.content[0].text)
+    const contentText = result.output.message.content[0].text;
 
     // Find the JSON block in case there's extra text
     const jsonMatch = contentText.match(/\{[\s\S]*\}/);
@@ -110,4 +111,80 @@ export function mapAnalysisToTransactions(
     subscriptions: findTransactions(analysis.subscriptions),
     physical: findTransactions(analysis.physical),
   };
+}
+
+export async function generateMissingReceiptsEmail(
+  data: EnrichedTransactionAnalysisResult
+): Promise<{ subject: string; body: string }> {
+  const prompt = `
+Du er en regnskapsførerassistent. Skriv en e-post til en kunde for å etterspørre manglende kvitteringer for følgende transaksjoner.
+
+Kategoriser dem tydelig i e-posten som "Abonnementer/Tjenester" og "Fysiske kjøp/Reise".
+
+Abonnementer som mangler bilag:
+${JSON.stringify(
+  data.subscriptions.map((t) => ({
+    dato: t.bookingDate,
+    beskrivelse: t.description,
+    beløp: t.amount,
+  })),
+  null,
+  2
+)}
+
+Fysiske kjøp som mangler bilag:
+${JSON.stringify(
+  data.physical.map((t) => ({
+    dato: t.bookingDate,
+    beskrivelse: t.description,
+    beløp: t.amount,
+  })),
+  null,
+  2
+)}
+
+Returner svaret som et JSON-objekt med feltene "subject" og "body".
+"body" skal være selve e-postteksten (i HTML-format, bruk <br> for linjeskift).
+Språk: Norsk.
+`;
+
+  const input = {
+    modelId: "amazon.nova-premier-v1:0",
+    contentType: "application/json",
+    accept: "application/json",
+    body: JSON.stringify({
+      inferenceConfig: {
+        max_new_tokens: 2000,
+      },
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    }),
+  };
+
+  try {
+    const command = new InvokeModelCommand(input);
+    const response = await client.send(command);
+
+    const responseBody = new TextDecoder().decode(response.body);
+    const result = JSON.parse(responseBody);
+    const contentText = result.output.message.content[0].text;
+
+    const jsonMatch = contentText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    } else {
+      throw new Error("No JSON found in response");
+    }
+  } catch (error) {
+    console.error("Error generating email:", error);
+    throw error;
+  }
 }

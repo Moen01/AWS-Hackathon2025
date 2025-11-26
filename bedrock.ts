@@ -3,7 +3,6 @@ import mockBankTransactions from "./mock/bank-transaction";
 import {
   analyzeCardTransactions,
   mapAnalysisToTransactions,
-  generateMissingReceiptsEmail,
 } from "./bedrock-service";
 
 async function run() {
@@ -19,13 +18,6 @@ async function run() {
       "Enriched Result (Objects):",
       JSON.stringify(enrichedResult, null, 2)
     );
-
-    console.log("Generating email...");
-    const email = await generateMissingReceiptsEmail(enrichedResult);
-    console.log("\n--- Generated Email ---");
-    console.log("Subject:", email.subject);
-    console.log("Body:\n", email.body);
-    console.log("-----------------------");
   } catch (error: any) {
     console.error("Failed to analyze:", error.message);
     if (
