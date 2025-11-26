@@ -85,9 +85,10 @@ fragment bankAccountFragment on BankAccount {
   }
 }
 
-query getBankAccount($id: Int!) {
-  bankAccount(id: $id) {
+query getBankAccounts() {
+  bankAccounts {
     ...bankAccountFragment
+    
   }
 }
 `;
@@ -178,7 +179,7 @@ interface BankTransactionsResponse {
 }
 
 interface BankAccountResponse {
-  bankAccount: {
+  bankAccounts: {
     id: number;
     currencyCode: string;
     name: string;
@@ -211,42 +212,43 @@ interface BankAccountResponse {
       failedSyncAttempts: number;
       failedSyncError: string;
     };
-  };
+  }[];
 }
 
 export async function fetchCatacloudData(
   token: string,
   from: string,
-  to: string,
-  bankAccountId: number
+  to: string
 ) {
   const bankAccountData = await graphqlRequest<BankAccountResponse>(
     BANK_ACCOUNT_QUERY,
-    { id: bankAccountId },
+    {},
     token
   );
 
-  const accountId = bankAccountData.bankAccount.account.id;
+  const bankAccount = bankAccountData.bankAccounts.find(
+    (ba) => ba.account.id === 1920
+  );
 
-  const ledgerVariables = {
-    options: {
-      account: accountId,
-      corrections: false,
-      from,
-      to,
-    },
-  };
+  //   const ledgerVariables = {
+  //     options: {
+  //       account: bankAccount?.account.id,
+  //       corrections: false,
+  //       from,
+  //       to,
+  //     },
+  //   };
 
   const bankVariables = {
     options: {
-      bankAccountId,
+      bankAccountId: bankAccount?.id,
       from,
       to,
     },
   };
 
-  const [ledgerData, bankTransactions] = await Promise.all([
-    graphqlRequest<LedgerReportResponse>(LEDGER_QUERY, ledgerVariables, token),
+  const [bankTransactions] = await Promise.all([
+    // graphqlRequest<LedgerReportResponse>(LEDGER_QUERY, ledgerVariables, token),
     graphqlRequest<BankTransactionsResponse>(
       BANK_TRANSACTIONS_QUERY,
       bankVariables,
@@ -255,8 +257,8 @@ export async function fetchCatacloudData(
   ]);
 
   return {
-    ledgerData: ledgerData.ledgerReport,
+    // ledgerData: ledgerData.ledgerReport,
     bankTransactions: bankTransactions.bankTransactions,
-    bankAccount: bankAccountData.bankAccount,
+    // bankAccount: bankAccountData.bankAccount,
   };
 }
