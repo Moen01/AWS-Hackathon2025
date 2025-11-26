@@ -954,3 +954,5 @@ const mockBankTransactions = [
     otherReference: "27878317996",
   },
 ];
+
+export default mockBankTransactions;

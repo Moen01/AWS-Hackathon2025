@@ -8,6 +8,7 @@
     "copy-views": "cp -r views dist/views",
     "start": "node dist/local.js",
     "dev": "ts-node local.ts",
+    "test-transactions": "ts-node test-mock-transactions.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +23,8 @@
   },
   "homepage": "https://github.com/Moen01/AWS-Hackathon2025#readme",
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@aws-sdk/client-ses": "^3.940.0",
     "express": "^5.1.0",
     "serverless-http": "^4.0.0"
   },
