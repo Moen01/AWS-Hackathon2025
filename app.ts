@@ -13,7 +13,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send(html);
 });
 
-app.get("/check", (req: Request, res: Response) => {
+app.get("/check", async (req: Request, res: Response) => {
   const token = req.query.token as string;
 
   // Validate token (basic check for now)
@@ -21,7 +21,7 @@ app.get("/check", (req: Request, res: Response) => {
     return res.status(400).send("Token is required");
   }
 
-  const email = generateEmail(token);
+  const email = await generateEmail(token);
 
   const htmlPath = path.join(__dirname, "views", "email.html");
   let html = fs.readFileSync(htmlPath, "utf-8");
