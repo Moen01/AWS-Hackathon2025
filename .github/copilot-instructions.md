@@ -46,7 +46,7 @@ The goal of this project is to **automate as much as possible** of the attestati
   Currency: String,
   CurrencyAmount: Int,
   ExcehangeRate: Double,
-  bankTransactionLock: Boolean,
+  bankTransactionLock: Int  ,
   accountantType: Boolean (credit or debit)
 }
 ```
