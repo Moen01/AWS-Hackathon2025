@@ -146,7 +146,7 @@ const mockBankTransactions = [
   {
     id: 9406463,
     transactionCode: "card",
-    description: "Apple Fixer",
+    description: "Apl: Fixer, Valutakurs:    10,2172",
     bookingDate: "2025-10-02",
     valueDate: "2025-10-02",
     amount: -160.82,
