@@ -140,12 +140,20 @@ export async function generateReceiptGuide(
   const prompt = `
 Du er en regnskapsførerassistent. En kunde trenger hjelp med å finne kvitteringer for følgende abonnementstransaksjoner.
 
-For hver transaksjon, analyser beskrivelsen og identifiser tjenesten, og gi DETALJERTE instruksjoner om hvordan kunden kan finne/laste ned kvitteringen.
+For hver transaksjon, analyser beskrivelsen og identifiser tjenesten, og gi DETALJERTE instruksjoner om hvordan kunden kan:
+1. Finne og laste ned kvitteringen for den spesifikke transaksjonen
+2. Sette opp automatisk e-postutsendelse av fremtidige fakturaer til sin e-postadresse
 
 Inkluder:
 1. Navnet på tjenesten/selskapet
-2. Steg-for-steg instruksjoner for å finne kvitteringen
-3. Direktelenke til fakturaside hvis mulig (for vanlige tjenester som GitHub, AWS, Adobe, etc.)
+2. Steg-for-steg instruksjoner for å finne DENNE kvitteringen
+3. Steg-for-steg instruksjoner for å sette opp automatisk e-postutsendelse av fremtidige fakturaer
+4. Direktelenke til fakturaside/innstillinger hvis mulig (for vanlige tjenester som GitHub, AWS, Adobe, etc.)
+
+VIKTIG: 
+- For "directLink", bruk URLen som tar kunden direkte til fakturainnstillinger/billing-siden hvor de kan både finne kvitteringer OG sette opp e-postutsendelse
+- Inkluder alltid instruksjoner om hvordan kunden kan legge til eller bekrefte sin e-postadresse for fremtidige fakturaer
+- Forklar at dette sikrer at de automatisk mottar kvitteringer på e-post fremover
 
 Transaksjoner:
 ${JSON.stringify(
@@ -166,12 +174,14 @@ Returner et JSON-objekt med denne strukturen:
       "transactionId": number,
       "service": "Navn på tjenesten",
       "description": "Kort beskrivelse av hva dette er",
-      "howToGetReceipt": "Detaljerte steg-for-steg instruksjoner",
-      "directLink": "URL hvis tilgjengelig (valgfritt)"
+      "howToGetReceipt": "Detaljerte steg-for-steg instruksjoner for å finne DENNE kvitteringen OG hvordan sette opp automatisk e-postutsendelse av fremtidige fakturaer",
+      "directLink": "URL til billing/invoice settings siden (ikke generell hjemmeside)"
     }
   ],
-  "generalInstructions": "Generelle tips for å finne kvitteringer"
+  "generalInstructions": ""
 }
+
+VIKTIG: La "generalInstructions" være tom (""). Vi trenger IKKE generelle tips.
 
 Språk: Norsk. Vær spesifikk og hjelpsom.
 `;
@@ -240,24 +250,30 @@ export async function generateMissingReceiptsEmail(
     guide.transactionId
   }</p>
   <div style="line-height: 1.6; white-space: pre-wrap;">
-    <strong>Slik finner du kvitteringen:</strong><br>
+    <strong>Slik finner du kvitteringen og setter opp automatisk utsendelse:</strong><br>
     ${guide.howToGetReceipt}
   </div>
   ${
     guide.directLink
-      ? `<a href="${guide.directLink}" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 4px;">🔗 Gå til fakturaside</a>`
+      ? `<a href="${guide.directLink}" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 4px;">🔗 Gå til fakturainnstillinger</a>`
       : ""
   }
 </div>
 `;
     });
 
-    receiptGuideHtml += `
+    // Only add general tips if they exist and are not empty
+    if (
+      receiptGuide.generalInstructions &&
+      receiptGuide.generalInstructions.trim() !== ""
+    ) {
+      receiptGuideHtml += `
 <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 4px;">
   <h4 style="color: #2e7d32; margin-top: 0;">💡 Generelle tips</h4>
   <p>${receiptGuide.generalInstructions}</p>
 </div>
 `;
+    }
   }
 
   const prompt = `
