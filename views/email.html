@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email - Unmatched Transaction Alert</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .email-header {
+      background-color: #667eea;
+      color: white;
+      padding: 20px;
+      border-radius: 5px 5px 0 0;
+    }
+    .email-header h2 {
+      margin: 0;
+    }
+    .email-body {
+      padding: 30px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .email-body h3 {
+      color: #667eea;
+      margin-top: 0;
+    }
+    .transaction-details {
+      background-color: #f9f9f9;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .transaction-details p {
+      margin: 8px 0;
+    }
+    .transaction-details strong {
+      color: #333;
+    }
+    .action-button {
+      display: inline-block;
+      background-color: #667eea;
+      color: white;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    .action-button:hover {
+      background-color: #764ba2;
+    }
+    .email-footer {
+      background-color: #f9f9f9;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid #ddd;
+      font-size: 12px;
+      color: #666;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #667eea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      <h2>🏦 Bank Transaction Alert</h2>
+    </div>
+    <div class="email-body">
+      <h3>Unmatched Transaction Detected</h3>
+      <p>Dear Customer,</p>
+      <p>We have detected an unmatched transaction in your bank statement that requires your attention and documentation.</p>
+      
+      <div class="transaction-details">
+        <p><strong>Transaction ID:</strong> 12345</p>
+        <p><strong>Date:</strong> {{DATE}}</p>
+        <p><strong>Description:</strong> Unknown Payment</p>
+        <p><strong>Amount:</strong> -$250.00 USD</p>
+        <p><strong>Status:</strong> <span style="color: #e74c3c;">⚠️ Unmatched</span></p>
+      </div>
+      
+      <p>To complete the attestation process, please provide:</p>
+      <ul>
+        <li>Receipt or invoice for this transaction</li>
+        <li>Description of the expense</li>
+        <li>Business purpose (if applicable)</li>
+      </ul>
+      
+      <a href="#" class="action-button">Upload Documentation</a>
+      
+      <p style="margin-top: 30px; font-size: 14px; color: #666;">
+        If you have any questions, please contact your accountant or our support team.
+      </p>
+    </div>
+    <div class="email-footer">
+      <p>This is an automated message from the Bank Attestation System</p>
+      <p>© 2025 AWS Hackathon Project</p>
+    </div>
+  </div>
+  <a href="/" class="back-link">← Back to Home</a>
+</body>
+</html>

@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-views",
+    "copy-views": "cp -r views dist/views",
     "start": "node dist/local.js",
     "dev": "ts-node local.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
