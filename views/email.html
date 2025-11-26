@@ -6,120 +6,131 @@
     <title>Email - Unmatched Transaction Alert</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
+        font-family: 'Roboto', Arial, sans-serif;
+        background-color: #f5f5f5;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
       }
-      .email-container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: white;
-        border: 1px solid #ddd;
-        border-radius: 5px;
+      .email-wrapper {
+        max-width: 700px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
       }
       .email-header {
-        background-color: #667eea;
+        background-color: #6200ea;
+        padding: 16px 24px;
         color: white;
-        padding: 20px;
-        border-radius: 5px 5px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
       }
-      .email-header h2 {
+      .email-header-icon {
+        font-size: 24px;
+      }
+      .email-header-title {
+        font-size: 18px;
+        font-weight: 500;
         margin: 0;
       }
+      .email-meta {
+        padding: 16px 24px;
+        border-bottom: 1px solid #e0e0e0;
+        background-color: #fafafa;
+      }
+      .email-from {
+        font-size: 14px;
+        color: #202124;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+      .email-to {
+        font-size: 12px;
+        color: #5f6368;
+      }
       .email-body {
-        padding: 30px;
+        padding: 24px;
         line-height: 1.6;
-        color: #333;
+        color: #202124;
+        font-size: 14px;
       }
-      .email-body h3 {
-        color: #667eea;
-        margin-top: 0;
+      .email-body strong {
+        font-weight: 500;
       }
-      .transaction-details {
-        background-color: #f9f9f9;
-        border-left: 4px solid #667eea;
-        padding: 15px;
-        margin: 20px 0;
+      .email-body ul {
+        margin: 16px 0;
+        padding-left: 20px;
       }
-      .transaction-details p {
+      .email-body ul li {
         margin: 8px 0;
-      }
-      .transaction-details strong {
-        color: #333;
+        color: #202124;
       }
       .action-button {
         display: inline-block;
-        background-color: #667eea;
+        background-color: #1a73e8;
         color: white;
-        padding: 12px 25px;
+        padding: 10px 24px;
         text-decoration: none;
-        border-radius: 5px;
-        margin-top: 20px;
+        border-radius: 4px;
+        margin: 16px 0;
+        font-weight: 500;
+        font-size: 14px;
       }
       .action-button:hover {
-        background-color: #764ba2;
+        background-color: #1765cc;
+        box-shadow: 0 1px 2px 0 rgba(26, 115, 232, 0.45);
       }
       .email-footer {
-        background-color: #f9f9f9;
-        padding: 20px;
-        text-align: center;
-        border-top: 1px solid #ddd;
+        padding: 16px 24px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
         font-size: 12px;
-        color: #666;
+        color: #5f6368;
+        text-align: center;
+      }
+      .email-footer p {
+        margin: 4px 0;
+      }
+      .signature {
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+        color: #5f6368;
+        font-size: 13px;
       }
       .back-link {
         display: block;
         text-align: center;
-        margin-top: 20px;
-        color: #667eea;
+        margin: 20px;
+        color: #1a73e8;
         text-decoration: none;
+        font-size: 14px;
+      }
+      .back-link:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
-    <div class="email-container">
+    <div class="email-wrapper">
       <div class="email-header">
-        <h2>🏦 Bank Transaction Alert</h2>
+        <span class="email-header-icon">🏦</span>
+        <h1 class="email-header-title">Bank Transaction Alert</h1>
       </div>
+      
+      <div class="email-meta">
+        <div class="email-from">Regnskapsførerassistent &lt;noreply@bankattestationsystem.no&gt;</div>
+        <div class="email-to">til: Hanna</div>
+      </div>
+
       <div class="email-body">
-        <h3>Unmatched Transaction Detected</h3>
-        <p>Dear Customer,</p>
-        <p>
-          We have detected an unmatched transaction in your bank statement that
-          requires your attention and documentation.
-        </p>
+        {{BODY}}
 
-        <div class="transaction-details">
-          <p><strong>Transaction ID:</strong> 12345</p>
-          <p><strong>Date:</strong> {{DATE}}</p>
-          <p><strong>Description:</strong> Unknown Payment</p>
-          <p><strong>Amount:</strong> -$250.00 USD</p>
-          <p>
-            <strong>Status:</strong>
-            <span style="color: #e74c3c">⚠️ Unmatched</span>
-          </p>
+        <div class="signature">
+          <p>This is an automated message from the Bank Attestation System</p>
+          <p>© 2025 AWS Hackathon Project</p>
         </div>
-        <div>{{SUBJECT}}</div>
-        <div>{{BODY}}</div>
-
-        <p>To complete the attestation process, please provide:</p>
-        <ul>
-          <li>Receipt or invoice for this transaction</li>
-          <li>Description of the expense</li>
-          <li>Business purpose (if applicable)</li>
-        </ul>
-
-        <a href="#" class="action-button">Upload Documentation</a>
-
-        <p style="margin-top: 30px; font-size: 14px; color: #666">
-          If you have any questions, please contact your accountant or our
-          support team.
-        </p>
-      </div>
-      <div class="email-footer">
-        <p>This is an automated message from the Bank Attestation System</p>
-        <p>© 2025 AWS Hackathon Project</p>
       </div>
     </div>
     <a href="/" class="back-link">← Back to Home</a>
