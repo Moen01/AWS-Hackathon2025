@@ -21,7 +21,7 @@ app.get("/check", async (req: Request, res: Response) => {
     return res.status(400).send("Token is required");
   }
 
-  const email = await generateEmail(token);
+  //   const email = await generateEmail(token);
 
   const htmlPath = path.join(__dirname, "views", "email.html");
   let html = fs.readFileSync(htmlPath, "utf-8");
