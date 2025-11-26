@@ -7,6 +7,9 @@ export async function generateEmail(token: string): Promise<string> {
     "2025-11-01T00:00:00.000Z",
     "2025-11-30T23:59:59.000Z"
   );
+  const bankTransactionsData = bankTransactions.bankTransactions;
+  console.log(bankTransactionsData);
+  return "Email content generated";
   // Generate email content using the fetched data and ai
   // const email = await generateEmail(bankTransactions)
   // return email
